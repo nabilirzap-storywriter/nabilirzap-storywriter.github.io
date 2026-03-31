@@ -26,7 +26,7 @@ onSnapshot(q, (snapshot) => {
     snapshot.forEach((doc) => {
         globalNames.push({ id: doc.id, ...doc.data() });
     });
-    updateTotalUI(globalNames.length); // Update Total Nama
+    updateTotalUI(globalNames.length); 
     updateView();
 });
 
@@ -47,8 +47,10 @@ function updateView() {
         const recommended = [...globalNames].sort((a, b) => b.votes - a.votes).slice(0, 5);
         renderNamesList(recommended, 'recommended-list', true);
 
-        // 7 NEW PUBLISH 
-        const newlyAdded = [...globalNames].slice(-7).reverse();
+        // 7 NEW PUBLISH (Diperbaiki: Sortir berdasarkan waktu stempel dibuat, yang paling baru di atas)
+        const newlyAdded = [...globalNames]
+            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+            .slice(0, 7);
         renderNamesList(newlyAdded, 'newly-added-list', false);
     }
 }
@@ -76,29 +78,25 @@ document.getElementById('admin-trigger').addEventListener('click', () => {
     else { secretTimeout = setTimeout(() => { secretClicks = 0; }, 400); }
 });
 
-// 5. SISTEM PUBLISH (ANTI-REFRESH & PERSISTENT TIMER)
+// 5. SISTEM PUBLISH (ANTI-REFRESH & TIMESTAMP)
 let isProcessing = false;
 let timerInterval;
 
-// Fungsi ini akan mengecek apakah ada timer yang berjalan sebelum web di-refresh
 function startOrResumeTimer() {
     const pendingName = localStorage.getItem('vaultPendingName');
     const startTime = localStorage.getItem('vaultStartTime');
     
-    // Kalau tidak ada data antrean, abaikan
     if (!pendingName || !startTime) return;
 
     isProcessing = true;
     document.getElementById('progress-container').style.display = 'block';
     
-    const totalPublishTime = 5 * 60; // 5 menit (300 detik)
-    const totalTopTime = 10 * 60;    // 10 menit (600 detik)
+    const totalPublishTime = 5 * 60; 
+    const totalTopTime = 10 * 60;    
 
-    // Bersihkan interval sebelumnya jika ada agar tidak bentrok
     if (timerInterval) clearInterval(timerInterval);
 
     timerInterval = setInterval(async () => {
-        // Hitung berapa detik yang sudah berlalu sejak tombol diklik pertama kali
         const elapsed = Math.floor((Date.now() - parseInt(startTime)) / 1000);
         
         let pubLeft = totalPublishTime - elapsed;
@@ -109,7 +107,6 @@ function startOrResumeTimer() {
         const timeTopEl = document.getElementById('time-top');
         const fillTopEl = document.getElementById('fill-top');
 
-        // --- UPDATE PUBLISH TIMER (5 MENIT) ---
         if (pubLeft > 0) {
             timePublishEl.innerText = `${Math.floor(pubLeft/60)}:${(pubLeft%60).toString().padStart(2,'0')}`;
             fillPublishEl.style.width = `${(elapsed / totalPublishTime) * 100}%`;
@@ -118,17 +115,16 @@ function startOrResumeTimer() {
             timePublishEl.style.color = "#00f5ff";
             fillPublishEl.style.width = `100%`;
             
-            // Mencegah duplicate push jika sudah dipublish
             if (!localStorage.getItem('vaultHasPublished')) {
-                localStorage.setItem('vaultHasPublished', 'true'); // Kunci agar tidak dikirim 2x
+                localStorage.setItem('vaultHasPublished', 'true'); 
                 try {
-                    await addDoc(collection(db, "names"), { name: pendingName, votes: 0 });
+                    // UPDATE: Stempel waktu ditambahkan di sini
+                    await addDoc(collection(db, "names"), { name: pendingName, votes: 0, createdAt: Date.now() });
                     showToast(`✅ ${pendingName} berhasil masuk Vault Utama!`);
                 } catch(e) { console.error(e); }
             }
         }
 
-        // --- UPDATE TOP TIMER (10 MENIT) ---
         if (topLeft > 0) {
             timeTopEl.innerText = `${Math.floor(topLeft/60)}:${(topLeft%60).toString().padStart(2,'0')}`;
             fillTopEl.style.width = `${(elapsed / totalTopTime) * 100}%`;
@@ -141,7 +137,6 @@ function startOrResumeTimer() {
             clearInterval(timerInterval);
             isProcessing = false;
             
-            // Bersihkan data storage setelah semua proses (10 menit) benar-benar selesai
             localStorage.removeItem('vaultPendingName');
             localStorage.removeItem('vaultStartTime');
             localStorage.removeItem('vaultHasPublished');
@@ -152,10 +147,8 @@ function startOrResumeTimer() {
     }, 1000);
 }
 
-// Jalankan pengecekan otomatis saat web pertama kali dibuka
 startOrResumeTimer();
 
-// TRIGGER TOMBOL PUBLISH
 document.getElementById('submit-btn').addEventListener('click', async () => {
     if(isProcessing) return showToast("⚠️ Protokol masih berjalan!");
     
@@ -163,17 +156,16 @@ document.getElementById('submit-btn').addEventListener('click', async () => {
     const nameValue = input.value.trim();
     if(!nameValue) return showToast("⚠️ Isi nama!");
 
-    // JIKA ADMIN (Langsung masuk)
     if(isAdmin) {
         try {
-            await addDoc(collection(db, "names"), { name: nameValue, votes: 0 });
+            // UPDATE: Stempel waktu ditambahkan di sini untuk Admin
+            await addDoc(collection(db, "names"), { name: nameValue, votes: 0, createdAt: Date.now() });
             showToast(`⚡ ADMIN BYPASS: ${nameValue} dipublikasi!`);
             input.value = ""; 
         } catch(e) { showToast("❌ Error database."); }
         return;
     }
 
-    // JIKA USER BIASA (Simpan data ke storage dan mulai timer)
     localStorage.setItem('vaultPendingName', nameValue);
     localStorage.setItem('vaultStartTime', Date.now().toString());
     localStorage.removeItem('vaultHasPublished'); 
