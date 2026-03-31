@@ -1,4 +1,3 @@
-// Menampilkan Notifikasi
 export function showToast(message) {
     const toast = document.getElementById('toast');
     toast.innerText = message;
@@ -6,40 +5,23 @@ export function showToast(message) {
     setTimeout(() => { toast.classList.remove('show'); }, 3000);
 }
 
-// Mengganti Menu (Bisa dari Sidebar PC atau Bottom Nav HP)
 export function switchTab(targetId) {
-    // Sembunyikan semua section
     document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
     document.getElementById(targetId).classList.add('active');
-
-    // Update style tombol PC
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    document.querySelectorAll('.nav-btn, .mob-nav-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.target === targetId);
     });
-
-    // Update style tombol HP
-    document.querySelectorAll('.mob-nav-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.target === targetId);
-    });
-
-    // Bersihkan pencarian jika pindah tab
-    if(targetId !== 'all-section') {
-        document.getElementById('search-input').value = "";
-    }
 }
 
-// Merender Daftar Nama ke Layar
 export function renderNamesList(dataArray, containerId, isLeaderboard = false) {
     const container = document.getElementById(containerId);
+    if(!container) return;
     container.innerHTML = '';
 
     dataArray.forEach((item, index) => {
         let prefix = "";
         if (isLeaderboard) {
-            let color = "var(--text-muted)";
-            if (index === 0) color = "#ffd700";
-            else if (index === 1) color = "#c0c0c0";
-            else if (index === 2) color = "#cd7f32";
+            let color = index === 0 ? "#ffd700" : (index === 1 ? "#c0c0c0" : (index === 2 ? "#cd7f32" : "#8b9bb4"));
             prefix = `<span style="color:${color}; font-weight:800; margin-right:15px;">#${index + 1}</span>`;
         }
 
@@ -53,4 +35,10 @@ export function renderNamesList(dataArray, containerId, isLeaderboard = false) {
         `;
         container.appendChild(card);
     });
+}
+
+// Update Angka Total di Header
+export function updateTotalUI(count) {
+    const el = document.getElementById('total-count');
+    if(el) el.innerText = `Total: ${count}`;
 }
