@@ -3,122 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Name Vault — Aurora Edition</title>
+    <title>The Name Vault — Aurora Edition V2</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-deep: #050508;
-            --glass-bg: rgba(20, 20, 30, 0.4);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --gold: #ffbd59;
-            --liquid-1: #ff477e;
-            --liquid-2: #00f5ff;
-            --text-main: #ffffff;
-            --text-muted: #8b9bb4;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-
-        body { background-color: var(--bg-deep); color: var(--text-main); overflow: hidden; height: 100vh; }
-
-        /* 🌌 HEAVY AURORA BACKGROUND */
-        .aurora-bg {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
-            background: radial-gradient(circle at center, #0a0a12 0%, #050508 100%);
-        }
-        .orb {
-            position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.6;
-            animation: float 15s ease-in-out infinite alternate;
-        }
-        .orb-1 { width: 60vw; height: 60vw; background: var(--liquid-1); top: -20%; left: -10%; }
-        .orb-2 { width: 50vw; height: 50vw; background: var(--liquid-2); bottom: -10%; right: -10%; animation-delay: -5s; }
-        .orb-3 { width: 40vw; height: 40vw; background: var(--gold); top: 30%; left: 40%; animation-duration: 20s; }
-
-        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(100px, 150px) scale(1.2); } }
-
-        /* 🧊 SMART APP LAYOUT */
-        .app-container { display: flex; height: 100vh; width: 100vw; padding: 20px; gap: 20px; }
-
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(50px) saturate(200%);
-            -webkit-backdrop-filter: blur(50px) saturate(200%);
-            border: 1px solid var(--glass-border);
-            border-radius: 30px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
-        }
-
-        /* 🖥️ UI PC: SIDEBAR KIRI */
-        .sidebar { width: 350px; padding: 40px 30px; display: flex; flex-direction: column; flex-shrink: 0; }
-        .sidebar h1 { font-size: 2.5rem; background: linear-gradient(90deg, #fff, var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; font-weight: 800; }
-        .lore-box { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px; margin-bottom: 30px; font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
-        
-        .nav-menu { display: flex; flex-direction: column; gap: 15px; }
-        .nav-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff;
-            padding: 18px; border-radius: 15px; cursor: pointer; text-align: left; font-size: 1rem; font-weight: 600;
-            transition: 0.3s;
-        }
-        .nav-btn.active, .nav-btn:hover { background: rgba(255,189,89,0.15); border-color: var(--gold); color: var(--gold); transform: translateX(10px); }
-
-        /* 🖥️ UI PC: KONTEN KANAN */
-        .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; position: relative; }
-        .main-content::-webkit-scrollbar { width: 8px; }
-        .main-content::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
-        
-        .section { display: none; animation: fadeIn 0.5s ease; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .section-title { font-size: 2.5rem; margin-bottom: 30px; }
-        .search-bar, .input-name { width: 100%; padding: 20px; border-radius: 20px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: #fff; font-size: 1.1rem; margin-bottom: 30px; outline: none; transition: 0.3s; }
-        .search-bar:focus, .input-name:focus { border-color: var(--gold); box-shadow: 0 0 20px rgba(255,189,89,0.2); }
-
-        /* LIST & ITEMS */
-        .list-wrapper { display: flex; flex-direction: column; gap: 15px; }
-        .name-card {
-            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 20px 25px; border-radius: 20px;
-            display: flex; justify-content: space-between; align-items: center; transition: 0.3s;
-        }
-        .name-card:hover { transform: scale(1.02); background: rgba(255,255,255,0.08); border-color: var(--gold); }
-        .vote-btn { background: rgba(255,189,89,0.1); border: 1px solid var(--gold); color: var(--gold); padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 800; transition: 0.3s; }
-        .vote-btn:hover { background: var(--gold); color: #000; box-shadow: 0 0 15px var(--gold); }
-
-        /* MOBILE BOTTOM NAV */
-        .mobile-bottom-nav { display: none; }
-
-        /* 🔔 TOAST */
-        #toast { position: fixed; top: 30px; right: -300px; background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--gold); padding: 15px 30px; border-radius: 20px; font-weight: 600; transition: 0.5s; z-index: 1000; }
-        #toast.show { right: 30px; }
-
-        /* 📱 SMARTPHONE UI TRANSFORM */
-        @media (max-width: 800px) {
-            body { overflow-y: auto; overflow-x: hidden; height: auto; }
-            .app-container { flex-direction: column; padding: 10px; padding-bottom: 100px; gap: 10px; height: auto;}
-            
-            .sidebar { width: 100%; padding: 25px; }
-            .nav-menu { display: none; } 
-            .lore-box { margin-bottom: 0; }
-            
-            .main-content { padding: 25px 15px; overflow-y: visible; }
-            .section-title { font-size: 2rem; }
-
-            .mobile-bottom-nav {
-                display: flex; justify-content: space-around; align-items: center;
-                position: fixed; bottom: 15px; left: 15px; right: 15px; height: 75px;
-                z-index: 100;
-            }
-            .mob-nav-btn {
-                background: none; border: none; color: var(--text-muted); font-size: 0.85rem; font-weight: 600;
-                display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; transition: 0.3s;
-            }
-            .mob-nav-btn.active { color: var(--gold); transform: translateY(-5px); }
-            .mob-icon { font-size: 1.3rem; }
-
-            #toast { top: auto; bottom: 110px; right: 50%; transform: translateX(50%); opacity: 0; }
-            #toast.show { right: 50%; transform: translateX(50%); opacity: 1; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -141,40 +28,33 @@
             
             <div class="nav-menu">
                 <button class="nav-btn active" data-target="all-section">All Identities</button>
-                <button class="nav-btn" data-target="top-section">Top 50 Leaderboard</button>
-                <button class="nav-btn" data-target="new-section">New Release</button>
-                <button class="nav-btn" data-target="add-section">Publish Protocol</button>
+                <button class="nav-btn" data-target="top-section">Leaderboard (Top 50)</button>
+                <button class="nav-btn" data-target="release-section">New Release</button>
+                <button class="nav-btn" data-target="add-section" style="border-color: var(--gold); color: var(--gold);">Publish Name</button>
             </div>
         </aside>
 
         <main class="glass-panel main-content">
             
             <div id="all-section" class="section active">
-                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
-                    <h2 class="section-title" style="margin-bottom: 0;">All Identities</h2>
-                    <span id="total-count" style="color: var(--gold); font-weight: 800; font-size: 1.1rem; background: rgba(255,189,89,0.1); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(255,189,89,0.3);">0 Names</span>
-                </div>
-                <input type="text" id="search-input" class="search-bar" placeholder="🔍 Cari identitas unik...">
+                <h2 class="section-title">All Identities <span id="total-count" style="font-size: 1rem; color: var(--gold); background: rgba(255,189,89,0.1); padding: 5px 15px; border-radius: 20px; margin-left: 10px;">Total: 0</span></h2>
+                <input type="text" id="search-input" class="search-bar" placeholder="Cari identitas...">
                 <div id="all-list" class="list-wrapper"></div>
             </div>
 
             <div id="top-section" class="section">
-                <h2 class="section-title">Leaderboard</h2>
+                <h2 class="section-title">Leaderboard (Top 50)</h2>
                 <div id="top-list" class="list-wrapper"></div>
             </div>
 
-            <div id="new-section" class="section">
-                <div style="margin-bottom: 40px;">
-                    <h2 class="section-title" style="font-size: 1.8rem; margin-bottom: 10px;">7 New Releases</h2>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Identitas yang paling baru dipublikasi ke Vault.</p>
-                    <div id="new-list" class="list-wrapper"></div>
-                </div>
+            <div id="release-section" class="section">
+                <h2 class="section-title">New Release</h2>
+                
+                <h3 style="margin-bottom: 15px; color: var(--gold);">⭐ Top 5 Recommended</h3>
+                <div id="recommended-list" class="list-wrapper" style="margin-bottom: 40px;"></div>
 
-                <div>
-                    <h2 class="section-title" style="font-size: 1.8rem; margin-bottom: 10px; color: var(--gold);">Top 5 Recommended</h2>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Saran identitas pilihan acak otomatis dari sistem.</p>
-                    <div id="recommended-list" class="list-wrapper"></div>
-                </div>
+                <h3 style="margin-bottom: 15px; color: var(--liquid-2);">🆕 7 New Publish Name</h3>
+                <div id="newly-added-list" class="list-wrapper"></div>
             </div>
 
             <div id="add-section" class="section">
@@ -195,18 +75,10 @@
     </div>
 
     <nav class="glass-panel mobile-bottom-nav">
-        <button class="mob-nav-btn active" data-target="all-section">
-            <span class="mob-icon">📄</span><span>Semua</span>
-        </button>
-        <button class="mob-nav-btn" data-target="top-section">
-            <span class="mob-icon">🏆</span><span>Top 50</span>
-        </button>
-        <button class="mob-nav-btn" data-target="new-section">
-            <span class="mob-icon">🌟</span><span>New</span>
-        </button>
-        <button class="mob-nav-btn" data-target="add-section">
-            <span class="mob-icon">✨</span><span>Publish</span>
-        </button>
+        <button class="mob-nav-btn active" data-target="all-section"><span>📄</span><span>All</span></button>
+        <button class="mob-nav-btn" data-target="top-section"><span>🏆</span><span>Top</span></button>
+        <button class="mob-nav-btn" data-target="release-section"><span>🔥</span><span>New</span></button>
+        <button class="mob-nav-btn" data-target="add-section"><span>✨</span><span>Add</span></button>
     </nav>
 
     <script type="module" src="main.js"></script>
