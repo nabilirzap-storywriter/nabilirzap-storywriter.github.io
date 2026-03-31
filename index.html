@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Name Vault — Aurora Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #050508;
+            --glass-bg: rgba(20, 20, 30, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --gold: #ffbd59;
+            --liquid-1: #ff477e;
+            --liquid-2: #00f5ff;
+            --text-main: #ffffff;
+            --text-muted: #8b9bb4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body { background-color: var(--bg-deep); color: var(--text-main); overflow: hidden; height: 100vh; }
+
+        /* 🌌 HEAVY AURORA BACKGROUND (NO OPTIMIZATION AS REQUESTED) */
+        .aurora-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
+            background: radial-gradient(circle at center, #0a0a12 0%, #050508 100%);
+        }
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.6;
+            animation: float 15s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 60vw; height: 60vw; background: var(--liquid-1); top: -20%; left: -10%; }
+        .orb-2 { width: 50vw; height: 50vw; background: var(--liquid-2); bottom: -10%; right: -10%; animation-delay: -5s; }
+        .orb-3 { width: 40vw; height: 40vw; background: var(--gold); top: 30%; left: 40%; animation-duration: 20s; }
+
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(100px, 150px) scale(1.2); } }
+
+        /* 🧊 SMART APP LAYOUT */
+        .app-container { display: flex; height: 100vh; width: 100vw; padding: 20px; gap: 20px; }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(50px) saturate(200%);
+            -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+
+        /* 🖥️ UI PC: SIDEBAR KIRI */
+        .sidebar { width: 350px; padding: 40px 30px; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar h1 { font-size: 2.5rem; background: linear-gradient(90deg, #fff, var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; font-weight: 800; }
+        .lore-box { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px; margin-bottom: 30px; font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+        
+        .nav-menu { display: flex; flex-direction: column; gap: 15px; }
+        .nav-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff;
+            padding: 18px; border-radius: 15px; cursor: pointer; text-align: left; font-size: 1rem; font-weight: 600;
+            transition: 0.3s;
+        }
+        .nav-btn.active, .nav-btn:hover { background: rgba(255,189,89,0.15); border-color: var(--gold); color: var(--gold); transform: translateX(10px); }
+
+        /* 🖥️ UI PC: KONTEN KANAN */
+        .main-content { flex-grow: 1; padding: 40px; overflow-y: auto; position: relative; }
+        .main-content::-webkit-scrollbar { width: 8px; }
+        .main-content::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+        
+        .section { display: none; animation: fadeIn 0.5s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-title { font-size: 2.5rem; margin-bottom: 30px; }
+        .search-bar, .input-name { width: 100%; padding: 20px; border-radius: 20px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: #fff; font-size: 1.1rem; margin-bottom: 30px; outline: none; transition: 0.3s; }
+        .search-bar:focus, .input-name:focus { border-color: var(--gold); box-shadow: 0 0 20px rgba(255,189,89,0.2); }
+
+        /* LIST & ITEMS */
+        .list-wrapper { display: flex; flex-direction: column; gap: 15px; }
+        .name-card {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 20px 25px; border-radius: 20px;
+            display: flex; justify-content: space-between; align-items: center; transition: 0.3s;
+        }
+        .name-card:hover { transform: scale(1.02); background: rgba(255,255,255,0.08); border-color: var(--gold); }
+        .vote-btn { background: rgba(255,189,89,0.1); border: 1px solid var(--gold); color: var(--gold); padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 800; transition: 0.3s; }
+        .vote-btn:hover { background: var(--gold); color: #000; box-shadow: 0 0 15px var(--gold); }
+
+        /* MOBILE BOTTOM NAV (HIDDEN ON PC) */
+        .mobile-bottom-nav { display: none; }
+
+        /* 🔔 TOAST */
+        #toast { position: fixed; top: 30px; right: -300px; background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--gold); padding: 15px 30px; border-radius: 20px; font-weight: 600; transition: 0.5s; z-index: 1000; }
+        #toast.show { right: 30px; }
+
+        /* 📱 SMARTPHONE UI TRANSFORM */
+        @media (max-width: 800px) {
+            body { overflow-y: auto; overflow-x: hidden; height: auto; }
+            .app-container { flex-direction: column; padding: 10px; padding-bottom: 100px; gap: 10px; height: auto;}
+            
+            .sidebar { width: 100%; padding: 25px; }
+            .nav-menu { display: none; } /* Sembunyikan menu samping di HP */
+            .lore-box { margin-bottom: 0; }
+            
+            .main-content { padding: 25px 15px; overflow-y: visible; }
+            .section-title { font-size: 2rem; }
+
+            /* MUNCULKAN BOTTOM NAVIGATION BAR ALA APLIKASI IOS */
+            .mobile-bottom-nav {
+                display: flex; justify-content: space-around; align-items: center;
+                position: fixed; bottom: 15px; left: 15px; right: 15px; height: 75px;
+                z-index: 100;
+            }
+            .mob-nav-btn {
+                background: none; border: none; color: var(--text-muted); font-size: 0.85rem; font-weight: 600;
+                display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; transition: 0.3s;
+            }
+            .mob-nav-btn.active { color: var(--gold); transform: translateY(-5px); }
+            .mob-icon { font-size: 1.5rem; }
+
+            #toast { top: auto; bottom: 110px; right: 50%; transform: translateX(50%); top: auto; opacity: 0; }
+            #toast.show { right: 50%; transform: translateX(50%); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="aurora-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div id="toast">Notifikasi</div>
+
+    <div class="app-container">
+        
+        <aside class="glass-panel sidebar">
+            <h1>The Vault</h1>
+            <div class="lore-box">
+                Sistem Arsip Identitas Eksklusif.<br>
+                Curator: <span id="admin-trigger" style="color: #fff; font-weight:800; cursor:pointer;">@n4bilirzap.ip</span>
+            </div>
+            
+            <div class="nav-menu">
+                <button class="nav-btn active" data-target="all-section">All Identities</button>
+                <button class="nav-btn" data-target="top-section">Leaderboard</button>
+                <button class="nav-btn" data-target="add-section">Publish New</button>
+            </div>
+        </aside>
+
+        <main class="glass-panel main-content">
+            
+            <div id="all-section" class="section active">
+                <h2 class="section-title">All Identities</h2>
+                <input type="text" id="search-input" class="search-bar" placeholder="Cari nama...">
+                <div id="all-list" class="list-wrapper"></div>
+            </div>
+
+            <div id="top-section" class="section">
+                <h2 class="section-title">Leaderboard</h2>
+                <div id="top-list" class="list-wrapper"></div>
+            </div>
+
+            <div id="add-section" class="section">
+                <h2 class="section-title">Publish Protocol</h2>
+                <input type="text" id="new-name-input" class="input-name" placeholder="Masukkan identitas unik...">
+                <button id="submit-btn" class="nav-btn" style="width: 100%; text-align: center; border-color: var(--gold); color: var(--gold);">INITIATE PUBLISH</button>
+                
+                <div id="progress-container" style="display: none; margin-top: 20px;">
+                    <p id="waiting-text" style="color: var(--text-muted); text-align: center; margin-bottom: 10px;">Sinkronisasi Server Berjalan...</p>
+                    <div style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 15px; border: 1px solid var(--glass-border);">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>Main Queue</span> <span id="time-publish" style="color:var(--gold)">5:00</span></div>
+                        <div style="width:100%; height:8px; background:rgba(255,255,255,0.1); border-radius:10px;"><div id="fill-publish" style="width:0%; height:100%; background:var(--gold); transition:1s;"></div></div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <nav class="glass-panel mobile-bottom-nav">
+        <button class="mob-nav-btn active" data-target="all-section">
+            <span class="mob-icon">📄</span><span>Semua</span>
+        </button>
+        <button class="mob-nav-btn" data-target="top-section">
+            <span class="mob-icon">🏆</span><span>Top 50</span>
+        </button>
+        <button class="mob-nav-btn" data-target="add-section">
+            <span class="mob-icon">✨</span><span>Publish</span>
+        </button>
+    </nav>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
