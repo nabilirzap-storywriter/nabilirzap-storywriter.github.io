@@ -21,7 +21,7 @@
 
         body { background-color: var(--bg-deep); color: var(--text-main); overflow: hidden; height: 100vh; }
 
-        /* 🌌 HEAVY AURORA BACKGROUND (NO OPTIMIZATION AS REQUESTED) */
+        /* 🌌 HEAVY AURORA BACKGROUND */
         .aurora-bg {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
             background: radial-gradient(circle at center, #0a0a12 0%, #050508 100%);
@@ -84,7 +84,7 @@
         .vote-btn { background: rgba(255,189,89,0.1); border: 1px solid var(--gold); color: var(--gold); padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 800; transition: 0.3s; }
         .vote-btn:hover { background: var(--gold); color: #000; box-shadow: 0 0 15px var(--gold); }
 
-        /* MOBILE BOTTOM NAV (HIDDEN ON PC) */
+        /* MOBILE BOTTOM NAV */
         .mobile-bottom-nav { display: none; }
 
         /* 🔔 TOAST */
@@ -97,13 +97,12 @@
             .app-container { flex-direction: column; padding: 10px; padding-bottom: 100px; gap: 10px; height: auto;}
             
             .sidebar { width: 100%; padding: 25px; }
-            .nav-menu { display: none; } /* Sembunyikan menu samping di HP */
+            .nav-menu { display: none; } 
             .lore-box { margin-bottom: 0; }
             
             .main-content { padding: 25px 15px; overflow-y: visible; }
             .section-title { font-size: 2rem; }
 
-            /* MUNCULKAN BOTTOM NAVIGATION BAR ALA APLIKASI IOS */
             .mobile-bottom-nav {
                 display: flex; justify-content: space-around; align-items: center;
                 position: fixed; bottom: 15px; left: 15px; right: 15px; height: 75px;
@@ -114,9 +113,9 @@
                 display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; transition: 0.3s;
             }
             .mob-nav-btn.active { color: var(--gold); transform: translateY(-5px); }
-            .mob-icon { font-size: 1.5rem; }
+            .mob-icon { font-size: 1.3rem; }
 
-            #toast { top: auto; bottom: 110px; right: 50%; transform: translateX(50%); top: auto; opacity: 0; }
+            #toast { top: auto; bottom: 110px; right: 50%; transform: translateX(50%); opacity: 0; }
             #toast.show { right: 50%; transform: translateX(50%); opacity: 1; }
         }
     </style>
@@ -142,22 +141,40 @@
             
             <div class="nav-menu">
                 <button class="nav-btn active" data-target="all-section">All Identities</button>
-                <button class="nav-btn" data-target="top-section">Leaderboard</button>
-                <button class="nav-btn" data-target="add-section">Publish New</button>
+                <button class="nav-btn" data-target="top-section">Top 50 Leaderboard</button>
+                <button class="nav-btn" data-target="new-section">New Release</button>
+                <button class="nav-btn" data-target="add-section">Publish Protocol</button>
             </div>
         </aside>
 
         <main class="glass-panel main-content">
             
             <div id="all-section" class="section active">
-                <h2 class="section-title">All Identities</h2>
-                <input type="text" id="search-input" class="search-bar" placeholder="Cari nama...">
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
+                    <h2 class="section-title" style="margin-bottom: 0;">All Identities</h2>
+                    <span id="total-count" style="color: var(--gold); font-weight: 800; font-size: 1.1rem; background: rgba(255,189,89,0.1); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(255,189,89,0.3);">0 Names</span>
+                </div>
+                <input type="text" id="search-input" class="search-bar" placeholder="🔍 Cari identitas unik...">
                 <div id="all-list" class="list-wrapper"></div>
             </div>
 
             <div id="top-section" class="section">
                 <h2 class="section-title">Leaderboard</h2>
                 <div id="top-list" class="list-wrapper"></div>
+            </div>
+
+            <div id="new-section" class="section">
+                <div style="margin-bottom: 40px;">
+                    <h2 class="section-title" style="font-size: 1.8rem; margin-bottom: 10px;">7 New Releases</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Identitas yang paling baru dipublikasi ke Vault.</p>
+                    <div id="new-list" class="list-wrapper"></div>
+                </div>
+
+                <div>
+                    <h2 class="section-title" style="font-size: 1.8rem; margin-bottom: 10px; color: var(--gold);">Top 5 Recommended</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Saran identitas pilihan acak otomatis dari sistem.</p>
+                    <div id="recommended-list" class="list-wrapper"></div>
+                </div>
             </div>
 
             <div id="add-section" class="section">
@@ -183,6 +200,9 @@
         </button>
         <button class="mob-nav-btn" data-target="top-section">
             <span class="mob-icon">🏆</span><span>Top 50</span>
+        </button>
+        <button class="mob-nav-btn" data-target="new-section">
+            <span class="mob-icon">🌟</span><span>New</span>
         </button>
         <button class="mob-nav-btn" data-target="add-section">
             <span class="mob-icon">✨</span><span>Publish</span>
